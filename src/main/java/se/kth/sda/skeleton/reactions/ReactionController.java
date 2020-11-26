@@ -95,8 +95,7 @@ public class ReactionController {
 
         return updatedReaction;
     }
-
-
+    
     /**
      * User can like or dislike a post/comment, not both.
      * If the User click the same reaction again that will cancel the previous reaction.

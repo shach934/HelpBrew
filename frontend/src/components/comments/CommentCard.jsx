@@ -44,9 +44,9 @@ function CommentCard({ comment, onDeleteClick, onUpdateClick }) {
     />
   ) : (
       <div>
-        <h5>{comment.authorName}</h5>
+        <h5>{comment.authorName}</h5> 
         <h4>{comment.body}</h4>
-        <h4>{comment.authorName}</h4>
+        <h4>{comment.email}</h4>
         <div >
           <button onClick={incrementLike}>
             <i ></i> {reaction.like}

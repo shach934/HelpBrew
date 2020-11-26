@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 export default function NewCommentForm({ onSubmit, post }) {
-  const [authorName, setAuthorName] = useState(post.email);
+  const [email, setEmail] = useState(post.email);
   const [body, setBody] = useState("");
 
   // Something still happing here?
@@ -22,7 +22,7 @@ export default function NewCommentForm({ onSubmit, post }) {
 
       <button
         
-        onClick={() => onSubmit({ body, authorName, post })}
+        onClick={() => onSubmit({ body, email, post })}
       >
         Comment
       </button>

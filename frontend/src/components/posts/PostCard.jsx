@@ -6,7 +6,6 @@ function PostCard({ post }) {
   const userEmail = post.email;
 
   const [reaction, setReaction] = useState(post.reaction);
-  const [upvotes, setUpvotes] = useState(post.email)
 
   const incrementLike = () => {
     const url = "/reactions/post/" + reaction.id + "?incrementTarget=like";
