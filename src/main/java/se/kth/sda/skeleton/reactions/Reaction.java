@@ -37,7 +37,6 @@ public class Reaction {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Comment comment;
 
-
     /**
      * Determining the relation between reaction and user entities.
      * Many users can add only one like reaction.
@@ -51,8 +50,6 @@ public class Reaction {
      */
     @OneToMany
     private List<User> usersDisliked;
-
-    private Date date;
 
     public Reaction(){
         numLike = 0;
@@ -107,11 +104,11 @@ public class Reaction {
         this.usersDisliked = usersDisliked;
     }
 
-    public Date getDate() {
-        return date;
+    public Post getPost() {
+        return post;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public Comment getComment() {
+        return comment;
     }
 }

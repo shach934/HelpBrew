@@ -5,10 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import se.kth.sda.skeleton.auth.AuthService;
+import se.kth.sda.skeleton.comments.Comment;
+import se.kth.sda.skeleton.post.Post;
 import se.kth.sda.skeleton.user.User;
 import se.kth.sda.skeleton.user.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/reactions")
@@ -72,15 +75,51 @@ public class ReactionController {
 
     /**
      * User can like or dislike a post/comment, not both.
-     * If the User click the same reaction again that's will cancel the previous reaction.
-     * if the User click on different reaction that's will cancel the previous reaction AND register new reaction type.
+     * If the User click the same reaction again that will cancel the previous reaction.
+     * if the User click on different reaction that will cancel the previous reaction AND register new reaction type.
      * @param id
      * @param incrementTarget
      * @return the updated reaction.
      */
-    @PutMapping("/{id}")
-    public Reaction update(@PathVariable long id, @RequestParam(required = false) String incrementTarget) {
+    @PutMapping("/post/{id}")
+    public Reaction updatePostReaction(@PathVariable long id, @RequestParam(required = false) String incrementTarget) {
 
+        Reaction reactionById = reactionService.getById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Post post = reactionById.getPost();
+        String email = post.getEmail();
+        User user = userService.findUserByEmail(email);
+
+        Reaction updatedReaction = updateReaction(id, incrementTarget,  user);
+
+        return updatedReaction;
+    }
+
+
+    /**
+     * User can like or dislike a post/comment, not both.
+     * If the User click the same reaction again that will cancel the previous reaction.
+     * if the User click on different reaction that will cancel the previous reaction AND register new reaction type.
+     * @param id
+     * @param incrementTarget
+     * @return the updated reaction.
+     */
+    @PutMapping("/comments/{id}")
+    public Reaction updateCommentsReaction(@PathVariable long id, @RequestParam(required = false) String incrementTarget) {
+
+        Reaction reactionById = reactionService.getById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Comment comment = reactionById.getComment();
+        String email = comment.getEmail();
+        User user = userService.findUserByEmail(email);
+        Reaction updatedReaction = updateReaction(id, incrementTarget, user);
+
+        return updatedReaction;
+    }
+
+    private Reaction updateReaction(long id, String incrementTarget, User articleOwer){
         String email = authService.getLoggedInUserEmail();
         User loggedUser = userService.findUserByEmail(email);
 
@@ -116,21 +155,36 @@ public class ReactionController {
 
         if(reacted){
             if(incrementTarget.equals("like") && type.equals("like")){
+
                 reactionById.setLike(reactionById.getLike() - 1);
                 userLiked.remove(index);
+                articleOwer.setGoodReputation(articleOwer.getGoodReputation() - 1);
+
             }else if(incrementTarget.equals("dislike") && type.equals("dislike")){
+
                 reactionById.setDislike(reactionById.getDislike() - 1);
                 userDisliked.remove(index);
+                articleOwer.setBadReputation(articleOwer.getBadReputation() - 1);
+
             }else if(incrementTarget.equals("like") && type.equals("dislike")){
+
                 reactionById.setDislike(reactionById.getDislike() - 1);
                 userDisliked.remove(index);
                 reactionById.setLike(reactionById.getLike() + 1);
                 userLiked.add(loggedUser);
+
+                articleOwer.setBadReputation(articleOwer.getBadReputation() - 1);
+                articleOwer.setGoodReputation(articleOwer.getGoodReputation() + 1);
+
             }else if(incrementTarget.equals("dislike") && type.equals("like")){
                 reactionById.setLike(reactionById.getLike() - 1);
                 userLiked.remove(index);
                 reactionById.setDislike(reactionById.getDislike() + 1);
                 userDisliked.add(loggedUser);
+
+                articleOwer.setBadReputation(articleOwer.getBadReputation() + 1);
+                articleOwer.setGoodReputation(articleOwer.getGoodReputation() - 1);
+
             }else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
@@ -138,16 +192,17 @@ public class ReactionController {
             if(incrementTarget.equals("like")){
                 reactionById.setLike(reactionById.getLike() + 1);
                 userLiked.add(loggedUser);
+                articleOwer.setGoodReputation(articleOwer.getGoodReputation() + 1);
             }else if(incrementTarget.equals("dislike")){
                 reactionById.setDislike(reactionById.getDislike() + 1);
                 userDisliked.add(loggedUser);
+                articleOwer.setBadReputation(articleOwer.getBadReputation() + 1);
             }else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
         }
         return reactionService.create(reactionById);
     }
-
 
     /**
      * EndPoint that receives a specific id and invoke the delete function in reactionService.

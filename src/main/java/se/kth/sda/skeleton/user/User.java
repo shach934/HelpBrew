@@ -19,7 +19,6 @@ public class User {
     @Column(name = "email", unique = true)
     private String email;
 
-
     @Length(min = 5, max=100, message = "Password length most be between 5-100 characters")
     @Column(name = "password")
     private String password;
@@ -28,15 +27,22 @@ public class User {
     @Column(name = "name")
     private String name;
 
+    private int goodReputation;
+    private int badReputation;
+
     // Hibernate needs a default constructor to function
-    public User() {}
+    public User() {
+        goodReputation = 0;
+        badReputation = 0;
+    }
 
     public User(@Email(message = "Invalid email address! Please provide a valid email address") @NotEmpty(message = "Please provide an email address") String email, @Length(min = 5, max = 100, message = "Password length most be between 5-100 characters") String password, @Length(min = 3, max = 100, message = "Name must be between 3-100 characters") String name) {
         this.email = email;
         this.password = password;
         this.name = name;
+        goodReputation = 0;
+        badReputation = 0;
     }
-
 
     public Long getId() {
         return id;
@@ -68,5 +74,21 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getGoodReputation() {
+        return goodReputation;
+    }
+
+    public void setGoodReputation(int goodReputation) {
+        this.goodReputation = goodReputation;
+    }
+
+    public int getBadReputation() {
+        return badReputation;
+    }
+
+    public void setBadReputation(int badReputation) {
+        this.badReputation = badReputation;
     }
 }

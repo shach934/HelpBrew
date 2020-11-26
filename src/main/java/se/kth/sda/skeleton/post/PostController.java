@@ -76,7 +76,6 @@ public class PostController {
         return service.create(newPost);
     }
 
-
     /**
      * EndPoint that receives the updated data and send them to the post service to update an existed post.
      * @param updatedPost

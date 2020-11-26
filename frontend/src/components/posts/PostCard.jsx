@@ -3,16 +3,20 @@ import Api from "../../api/Api";
 import { Link } from "react-router-dom";
 
 function PostCard({ post }) {
+  const userEmail = post.email;
+
   const [reaction, setReaction] = useState(post.reaction);
+  const [upvotes, setUpvotes] = useState(post.email)
+
   const incrementLike = () => {
-    const url = "/reactions/" + reaction.id + "?incrementTarget=like";
+    const url = "/reactions/post/" + reaction.id + "?incrementTarget=like";
     Api.put(url, reaction).then((r) => {
       setReaction(r.data);
     });
   };
 
   const incrementDislike = () => {
-    const url = "/reactions/" + reaction.id + "?incrementTarget=dislike";
+    const url = "/reactions/post/" + reaction.id + "?incrementTarget=dislike";
     Api.put(url, reaction).then((r) => {
       setReaction(r.data);
     });
@@ -36,6 +40,9 @@ function PostCard({ post }) {
           <h3>
             <a href={post.title}>{post.title}</a>
           </h3>
+          <div>
+            {post.email}(upvotes:{}, downvotes:{})
+          </div>
           <div>
             <span>{post.date}</span>
             <br />

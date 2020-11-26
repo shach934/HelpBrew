@@ -21,10 +21,8 @@ public class UserController {
         return userService.findUserByEmail(email);
     }
 
-
     @GetMapping("/user")
     public String userEmail() {
-
         return authService.getLoggedInUserEmail();
     }
 

@@ -21,6 +21,8 @@ public class Comment {
     @Column(name = "author_name")
     private String authorName;
 
+    private String email;
+
     @ManyToOne
     private Post post;
 
@@ -33,11 +35,12 @@ public class Comment {
         reaction = new Reaction();
     }
 
-    public Comment(Long id, String body, String authorName, Reaction reaction) {
+    public Comment(Long id, String body, String authorName, String email) {
         this.id = id;
         this.body = body;
         this.authorName = authorName;
-        this.reaction = reaction;
+        this.reaction = new Reaction();
+        this.email = email;
     }
 
     public Long getId() {
@@ -78,5 +81,13 @@ public class Comment {
 
     public void setReaction(Reaction reaction) {
         this.reaction = reaction;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
