@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 function PostCard({ post }) {
   const userEmail = post.email;
 
+  const [goodRepu, setGoodRepu] = useState(0);
+  const [badRepu, setBadRepu] = useState(0);
+
   const [reaction, setReaction] = useState(post.reaction);
 
   const incrementLike = () => {
