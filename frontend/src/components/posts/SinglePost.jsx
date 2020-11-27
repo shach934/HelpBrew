@@ -14,7 +14,7 @@ function SinglePost(onUpdateClick) {
   const history = useHistory();
   const isPoster = userEmail === post.email;
   const [isUpdating, setIsUpdating] = useState(false);
-
+  const [reaction, setReaction] = useState(post.reaction);
   const [email, setEmail] = useState("");
 
   useEffect(() => {
@@ -68,6 +68,20 @@ function SinglePost(onUpdateClick) {
     setIsUpdating(true);
   };
 
+  const incrementLike = () => {
+    const url = "/reactions/" + reaction.id + "?incrementTarget=like";
+    Api.put(url, reaction).then((r) => {
+      setReaction(r.data);
+    });
+  };
+
+  const incrementDislike = () => {
+    const url = "/reactions/" + reaction.id + "?incrementTarget=dislike";
+    Api.put(url, reaction).then((r) => {
+      setReaction(r.data);
+    });
+  };
+
   try {
     return isUpdating ? (
       <PostUpdateForm
@@ -89,6 +103,16 @@ function SinglePost(onUpdateClick) {
             <div>
               <h3>{post.title}</h3>
               <p>{post.body}</p>
+
+              <div className="reaction">
+                <button onClick={incrementLike}>
+                  <i className="fas fa-thumbs-up"></i> {reaction.like}
+                </button>
+                <button onClick={incrementDislike}>
+                  <i className="fas fa-thumbs-down"></i> {reaction.dislike}
+                </button>
+              </div>
+
               {post.email === email ? (
                 <div>
                   <button onClick={() => deletePost()}>Delete</button>
