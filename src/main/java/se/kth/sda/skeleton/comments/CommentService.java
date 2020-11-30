@@ -1,7 +1,10 @@
 package se.kth.sda.skeleton.comments;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import se.kth.sda.skeleton.post.Post;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,16 +36,14 @@ public class CommentService {
         return repository.findAllByPostIdOrderByIdAsc(id);
     }
 
-    public Comment getById(Long id){return repository.findAllById(id); }
-
     /**
      * This function invokes the findById function in the commentRepository to get the
      * a comment with specific id.
      * @param id
      * @return the requested comment.
      */
-    public Optional<Comment> get(Long id){
-        return repository.findById(id);
+    public Comment getById(Long id){
+        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     /**
