@@ -39,7 +39,7 @@ public class PostController {
      */
     @GetMapping("/{id}")
     public Post getById(@PathVariable Long id) {
-        return service.getById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return service.getById(id);
     }
 
     /**

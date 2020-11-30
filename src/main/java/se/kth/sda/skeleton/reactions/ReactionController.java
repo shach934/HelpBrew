@@ -5,10 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import se.kth.sda.skeleton.auth.AuthService;
+import se.kth.sda.skeleton.comments.Comment;
+import se.kth.sda.skeleton.comments.CommentService;
+import se.kth.sda.skeleton.post.Post;
+import se.kth.sda.skeleton.post.PostService;
 import se.kth.sda.skeleton.user.User;
 import se.kth.sda.skeleton.user.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/reactions")
@@ -23,6 +28,12 @@ public class ReactionController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    PostService postService;
+
+    @Autowired
+    CommentService commentService;
+
     /**
      * EndPoint that receives a request to get all the reaction.
      * @return Invoke the getAll function in the reactionService class.
@@ -33,7 +44,6 @@ public class ReactionController {
         return reactionService.getAll();
     }
 
-
     /**
      * EndPoint that receives a specific id and send it to the reactionService.
      * @param id
@@ -42,119 +52,99 @@ public class ReactionController {
      */
     @GetMapping("/{id}")
     public Reaction getById(@PathVariable long id) {
-        return reactionService.getById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return reactionService.getById(id);
     }
 
-
-    /**
-     * EndPoint that receives new reaction data and send them to the reactionService to increment the reaction.
-     * @param newReaction
-     * @return Invoke the create function in the reactionService class.
-     * The new count.
-     */
-    @PostMapping("")
-    public Reaction create(@RequestBody Reaction newReaction) {
-        return reactionService.create(newReaction);
+    @GetMapping("/{postId}")
+    public int getAllByPostId(@PathVariable Long postId, @RequestParam String type){
+        List<Reaction> allReactions = reactionService.getAllByPostId(postId);
+        int counter = 0;
+        for(Reaction r:allReactions){
+            if(r.getType().equals(type)){
+                counter += 1;
+            }
+        }
+        return counter;
     }
 
-
-    /**
-     * EndPoint that receives the updated data and send them to the reactionService to update an existed reaction.
-     * @param updatedReaction
-     * @return Invoke the update function in the reactionService class.
-     * The updated reaction
-     */
-    @PutMapping("")
-    public Reaction update(@RequestBody Reaction updatedReaction) {
-        return reactionService.update(updatedReaction);
+    @GetMapping("/{commentId}")
+    public int getAllByCommentId(@PathVariable Long commentId, @RequestParam String type){
+        List<Reaction> allReactions = reactionService.getAllByPostId(commentId);
+        int counter = 0;
+        for(Reaction r:allReactions){
+            if(r.getType().equals(type)){
+                counter += 1;
+            }
+        }
+        return counter;
     }
 
-    /**
-     * User can like or dislike a post/comment, not both.
-     * If the User click the same reaction again that's will cancel the previous reaction.
-     * if the User click on different reaction that's will cancel the previous reaction AND register new reaction type.
-     * @param id
-     * @param incrementTarget
-     * @return the updated reaction.
-     */
-    @PutMapping("/{id}")
-    public Reaction update(@PathVariable long id, @RequestParam(required = false) String incrementTarget) {
+    @GetMapping("/{userId}")
+    public int getAllByUserId(@PathVariable Long userId, @RequestParam String type){
+        List<Reaction> allReactions = reactionService.getAllByPostId(userId);
+        int counter = 0;
+        for(Reaction r:allReactions){
+            if(r.getType().equals(type)){
+                counter += 1;
+            }
+        }
+        return counter;
+    }
 
-        String email = authService.getLoggedInUserEmail();
-        User loggedUser = userService.findUserByEmail(email);
+    @PostMapping("{postId}")
+    public void createPostReaction(@PathVariable Long postId, @RequestParam String type){
+        //pass a postId and type in, then check if this is a new, change, cancel operation.
+        List<Reaction> postReactions = reactionService.getAllByPostId(postId);
+        String loggedUserEmail = authService.getLoggedInUserEmail();
 
-        Reaction reactionById = reactionService.getById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        List<User> userLiked = reactionById.getUsersLiked();
-        List<User> userDisliked = reactionById.getUsersDisliked();
-
-        boolean reacted = false;
-        int index = -1;
-        String type = "";
-
-        for(int i = 0; i < userLiked.size(); i ++){
-            User u = userLiked.get(i);
-            if(u.getId().equals(loggedUser.getId())){
-                reacted = true;
-                index = i;
-                type = "like";
-                break;
+        for(Reaction reaction:postReactions){
+            // loop over all reaction to check if user has reacted before.
+            if(reaction.getUser().getEmail().equals(loggedUserEmail)){
+                if(reaction.getType().equals(type)){
+                    // same type, just delete it.
+                    Long reactionId = reaction.getId();
+                    delete(reactionId);
+                }else {
+                    // different type, reset the type to current type and break the loop.
+                    reaction.setType(type);
+                }
+                return;
             }
         }
 
-        for(int i = 0; i < userDisliked.size(); i ++){
-            User u = userDisliked.get(i);
-            if(u.getId().equals(loggedUser.getId())){
-                reacted = true;
-                index = i;
-                type = "dislike";
-                break;
-            }
-        }
-
-        if(reacted){
-            if(incrementTarget.equals("like") && type.equals("like")){
-                reactionById.setLike(reactionById.getLike() - 1);
-                userLiked.remove(index);
-            }else if(incrementTarget.equals("dislike") && type.equals("dislike")){
-                reactionById.setDislike(reactionById.getDislike() - 1);
-                userDisliked.remove(index);
-            }else if(incrementTarget.equals("like") && type.equals("dislike")){
-                reactionById.setDislike(reactionById.getDislike() - 1);
-                userDisliked.remove(index);
-                reactionById.setLike(reactionById.getLike() + 1);
-                userLiked.add(loggedUser);
-            }else if(incrementTarget.equals("dislike") && type.equals("like")){
-                reactionById.setLike(reactionById.getLike() - 1);
-                userLiked.remove(index);
-                reactionById.setDislike(reactionById.getDislike() + 1);
-                userDisliked.add(loggedUser);
-            }else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-            }
-        }else {
-            if(incrementTarget.equals("like")){
-                reactionById.setLike(reactionById.getLike() + 1);
-                userLiked.add(loggedUser);
-            }else if(incrementTarget.equals("dislike")){
-                reactionById.setDislike(reactionById.getDislike() + 1);
-                userDisliked.add(loggedUser);
-            }else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-            }
-        }
-        return reactionService.create(reactionById);
+        Reaction reaction = new Reaction();
+        Post post = postService.getById(postId);
+        reaction.setPost(post);
+        User user = userService.findUserByEmail(loggedUserEmail);
+        reaction.setUser(user);
+        reactionService.create(reaction);
     }
 
+    @PostMapping("{commentId}")
+    public void createCommentReaction(@PathVariable Long commentId, @RequestParam String type){
+        List<Reaction> commentReactions = reactionService.getAllByCommentId(commentId);
+        String loggedUserEmail = authService.getLoggedInUserEmail();
 
-    /**
-     * EndPoint that receives a specific id and invoke the delete function in reactionService.
-     * @param id
-     */
-    @DeleteMapping("{id}")
-    public void delete(@PathVariable Long id) {
+        for(Reaction reaction:commentReactions){
+            if(reaction.getUser().getEmail().equals(loggedUserEmail)){
+                if(reaction.getType().equals(type)){
+                    Long reactionId = reaction.getId();
+                    delete(reactionId);
+                }else {
+                    reaction.setType(type);
+                }
+                return;
+            }
+        }
+        Reaction reaction = new Reaction();
+        Comment comment = commentService.getById(commentId);
+        reaction.setComment(comment);
+        User user = userService.findUserByEmail(loggedUserEmail);
+        reaction.setUser(user);
+        reactionService.create(reaction);
+    }
+
+    public void delete(Long id) {
         reactionService.delete(id);
     }
 }

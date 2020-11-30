@@ -2,10 +2,11 @@ package se.kth.sda.skeleton.post;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PostService {
@@ -32,8 +33,8 @@ public class PostService {
      * @param id
      * @return The post with a specific ID
      */
-    public Optional<Post> getById(Long id) {
-        return repository.findById(id);
+    public Post getById(Long id) {
+        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
 

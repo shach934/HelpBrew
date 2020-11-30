@@ -33,6 +33,8 @@ public class CommentService {
         return repository.findAllByPostIdOrderByIdAsc(id);
     }
 
+    public Comment getById(Long id){return repository.findAllById(id); }
+
     /**
      * This function invokes the findById function in the commentRepository to get the
      * a comment with specific id.

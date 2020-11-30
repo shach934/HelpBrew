@@ -18,53 +18,36 @@ public class Reaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int numLike;
-    private int numDislike;
-
-
     /**
      * Determining the relation between reaction and post entities.
-     * one post can have one reaction from a specific user
+     * one post can have many reaction from different users
      */
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Post post;
 
-
+    private String type;  // type can be like or dislike.
     /**
      * Determining the relation between reaction and comment entities.
-     * one comment can have one reaction from a specific user
+     * one comment can have many reaction from different users
      */
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Comment comment;
-
 
     /**
      * Determining the relation between reaction and user entities.
      * Many users can add only one like reaction.
      */
-    @OneToMany
-    private List<User> usersLiked;
+    @ManyToOne
+    private User user;
 
-    /**
-     * Determining the relation between reaction and user entities.
-     * Many users can add only one disLike reaction.
-     */
-    @OneToMany
-    private List<User> usersDisliked;
+    public Reaction(){ }
 
-    private Date date;
-
-    public Reaction(){
-        numLike = 0;
-        numDislike = 0;
-        usersLiked = new ArrayList<>();
-        usersDisliked = new ArrayList<>();
-    }
-
-    public Reaction(Long id, Integer numLike, Integer numDislike) {
+    public Reaction(Long id, Post post, Comment comment, User user, String type) {
         this.id = id;
-        this.numLike = numLike;
-        this.numDislike = numDislike;
+        this.post = post;
+        this.comment = comment;
+        this.user = user;
+        this.type = type;
     }
 
     public Long getId() {
@@ -75,43 +58,35 @@ public class Reaction {
         this.id = id;
     }
 
-    public int getLike() {
-        return numLike;
+    public Post getPost() {
+        return post;
     }
 
-    public void setLike(int like) {
-        this.numLike = like;
+    public void setPost(Post post) {
+        this.post = post;
     }
 
-    public int getDislike() {
-        return numDislike;
+    public Comment getComment() {
+        return comment;
     }
 
-    public void setDislike(int dislike) {
-        this.numDislike = dislike;
+    public void setComment(Comment comment) {
+        this.comment = comment;
     }
 
-    public List<User> getUsersLiked() {
-        return usersLiked;
+    public User getUser() {
+        return user;
     }
 
-    public void setUsersLiked(List<User> usersLiked) {
-        this.usersLiked = usersLiked;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public List<User> getUsersDisliked() {
-        return usersDisliked;
+    public String getType() {
+        return type;
     }
 
-    public void setUsersDisliked(List<User> usersDisliked) {
-        this.usersDisliked = usersDisliked;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
+    public void setType(String type) {
+        this.type = type;
     }
 }

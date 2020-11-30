@@ -29,6 +29,10 @@ public class CommentController {
         return postId == null ? service.getAll() : service.getAllByPostId(postId);
     }
 
+    @GetMapping("/{id}")
+    public Comment getById(@PathVariable Long id){
+        return service.getById(id);
+    }
 
     /**
      * EndPoint that receives new comment data and send them to the comment service to create the new comment
