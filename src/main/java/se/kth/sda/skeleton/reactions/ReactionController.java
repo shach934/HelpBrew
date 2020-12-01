@@ -55,7 +55,7 @@ public class ReactionController {
         return reactionService.getById(id);
     }
 
-    @GetMapping("/{postId}")
+    @GetMapping("/post/{postId}")
     public int getAllByPostId(@PathVariable Long postId, @RequestParam String type){
         List<Reaction> allReactions = reactionService.getAllByPostId(postId);
         int counter = 0;
@@ -67,7 +67,7 @@ public class ReactionController {
         return counter;
     }
 
-    @GetMapping("/{commentId}")
+    @GetMapping("/comment/{commentId}")
     public int getAllByCommentId(@PathVariable Long commentId, @RequestParam String type){
         List<Reaction> allReactions = reactionService.getAllByPostId(commentId);
         int counter = 0;
@@ -91,7 +91,7 @@ public class ReactionController {
         return counter;
     }
 
-    @PostMapping("{postId}")
+    @PostMapping("/post/{postId}")
     public void createPostReaction(@PathVariable Long postId, @RequestParam String type){
         //pass a postId and type in, then check if this is a new, change, cancel operation.
         List<Reaction> postReactions = reactionService.getAllByPostId(postId);
@@ -117,10 +117,11 @@ public class ReactionController {
         reaction.setPost(post);
         User user = userService.findUserByEmail(loggedUserEmail);
         reaction.setUser(user);
+        reaction.setType(type);
         reactionService.create(reaction);
     }
 
-    @PostMapping("{commentId}")
+    @PostMapping("/comment/{commentId}")
     public void createCommentReaction(@PathVariable Long commentId, @RequestParam String type){
         List<Reaction> commentReactions = reactionService.getAllByCommentId(commentId);
         String loggedUserEmail = authService.getLoggedInUserEmail();
@@ -141,6 +142,7 @@ public class ReactionController {
         reaction.setComment(comment);
         User user = userService.findUserByEmail(loggedUserEmail);
         reaction.setUser(user);
+        reaction.setType(type);
         reactionService.create(reaction);
     }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Api from "../../../api/Api";
 import { Link } from "react-router-dom";
 
@@ -7,20 +7,29 @@ import { Link } from "react-router-dom";
 //The code below should be worked through. What information should be displayed on
 //PostCard? Shall tags "Available"/"Claimed" stay as they are or are we changing that?
 function PostCard({ post }) {
-  const [reaction, setReaction] = useState(post.reaction);
-  const incrementLike = () => {
-    const url = "/reactions/" + reaction.id + "?incrementTarget=like";
-    Api.put(url, reaction).then((r) => {
-      setReaction(r.data);
-    });
-  };
+  const [like, setLike] = useState(0); 
+  const [dislike, setDislike] = useState(0);
 
-  const incrementDislike = () => {
-    const url = "/reactions/" + reaction.id + "?incrementTarget=dislike";
-    Api.put(url, reaction).then((r) => {
-      setReaction(r.data);
-    });
-  };
+  useEffect(() => {
+    Api.get("/reactions/post/" + post.id + "?type=like")
+    .then(response => setLike(response.data))
+    .catch(er => console.log(er));;
+  },[like, post.id]);
+
+  useEffect(() => {
+    Api.get("/reactions/post/" + post.id + "?type=dislike")
+    .then(response => setDislike(response.data))
+    .catch(er => console.log(er));;
+  },[dislike, post.id]);
+  
+
+  const onLikeClicked = () => {
+    Api.put("/reactions/post/" + post.id, "like");
+  }
+
+  const onDisLikeClicked = () => {
+    Api.put("/reactions/post/" + post.id, "dislike");
+  }
 
   return (
     <div>
@@ -54,13 +63,12 @@ function PostCard({ post }) {
           >
             View Post
           </Link>
-
           <div className="reaction">
-            <button onClick={incrementLike}>
-              <i className="fas fa-thumbs-up"></i> {reaction.like}
+            <button onClick={onLikeClicked}>
+              <i className="fas fa-thumbs-up"></i> {like}
             </button>
-            <button onClick={incrementDislike}>
-              <i className="fas fa-thumbs-down"></i> {reaction.dislike}
+            <button onClick={onDisLikeClicked}>
+              <i className="fas fa-thumbs-down"></i> {dislike}
             </button>
           </div>
         </div>

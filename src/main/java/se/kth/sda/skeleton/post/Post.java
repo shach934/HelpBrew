@@ -43,25 +43,20 @@ public class Post {
     @NotNull(message = "Post type may not be null")
     private String postType;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "reaction_id", referencedColumnName = "id")
-    private Reaction reaction;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Reaction> reactions;
 
     private String category;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> comments;
 
-    public Post() {
-        this.reaction = new Reaction();
-    }
+    public Post() { }
 
     public Post(Long id, String title, String body, String postType) {
         this.id = id;
         this.title = title;
         this.body = body;
-        this.reaction = new Reaction();
         this.postType = postType;
     }
 
@@ -145,11 +140,4 @@ public class Post {
         this.category = category;
     }
 
-    public Reaction getReaction() {
-        return reaction;
-    }
-
-    public void setReaction(Reaction articleReaction) {
-        this.reaction = articleReaction;
-    }
 }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import se.kth.sda.skeleton.post.Post;
 import se.kth.sda.skeleton.reactions.Reaction;
 
+import java.util.List;
+
 @Table(name = "comments")
 @Entity
 public class Comment {
@@ -24,20 +26,15 @@ public class Comment {
     @ManyToOne
     private Post post;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "reaction_id", referencedColumnName = "id")
-    private Reaction reaction;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    private List<Reaction> reactions;
 
-    public Comment() {
-        reaction = new Reaction();
-    }
+    public Comment(){}
 
     public Comment(Long id, String body, String authorName, Reaction reaction) {
         this.id = id;
         this.body = body;
         this.authorName = authorName;
-        this.reaction = reaction;
     }
 
     public Long getId() {
@@ -72,11 +69,4 @@ public class Comment {
         this.post = post;
     }
 
-    public Reaction getReaction() {
-        return reaction;
-    }
-
-    public void setReaction(Reaction reaction) {
-        this.reaction = reaction;
-    }
 }

@@ -22,23 +22,14 @@ public class Reaction {
      * Determining the relation between reaction and post entities.
      * one post can have many reaction from different users
      */
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne
     private Post post;
-
-    private String type;  // type can be like or dislike.
-    /**
-     * Determining the relation between reaction and comment entities.
-     * one comment can have many reaction from different users
-     */
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne
     private Comment comment;
-
-    /**
-     * Determining the relation between reaction and user entities.
-     * Many users can add only one like reaction.
-     */
     @ManyToOne
     private User user;
+
+    private String type;  // type can be like or dislike.
 
     public Reaction(){ }
 
