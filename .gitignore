@@ -5,10 +5,9 @@ node_modules
 node_modules/
 
 
-
 gradle
 
-.idea
+.idea/
 
 .settings
 
@@ -16,15 +15,12 @@ gradle
 
 .project
 
-.build
 
 .classes
 
 
-build
+build/
 
-classes
 
 .DS_Store
 
-DS_Store
